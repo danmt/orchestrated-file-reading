@@ -4,16 +4,7 @@ import { defer, from, zip, Subject, merge } from 'rxjs';
 import { mergeMap, scan, shareReplay, filter, map } from 'rxjs/operators';
 
 const calleeDir = process.cwd();
-const mocksDir = path.join(calleeDir, 'mocks');
-
-/* 
-  Go through the simple mock and read the files asynchronously in this order:
-
-  - Level 1
-    - Level 1.1 and Level 1.2
-*/
-
-const simpleMockDir = path.join(mocksDir, 'simple');
+const mocksDir = path.join(calleeDir, 'mocks', 'simple');
 
 const readFile$ = (filePath: string) =>
   defer(() => from(fs.readFile(filePath)));
@@ -29,13 +20,28 @@ const initialState = {
 
 const reducer = (state: any, action: any) => {
   switch (action.type) {
-    case 'MODULE_READ':
+    case 'READ_MODULE':
       return {
         ...state,
         modules: [
           ...state.modules,
-          { name: action.name, declarations: [], imports: [] }
+          {
+            path: action.filePath,
+            parent: action.parent
+          }
         ]
+      };
+    case 'MODULE_READ':
+      return {
+        ...state,
+        modules: state.modules.map((currentModule: any) =>
+          currentModule.path === action.path
+            ? {
+                ...currentModule,
+                name: action.name
+              }
+            : currentModule
+        )
       };
     case 'READ_DECLARATIONS':
       return {
@@ -108,6 +114,7 @@ const readModule$ = actions$.pipe(
       map(({ name, declarations, imports }) => [
         {
           type: 'MODULE_READ',
+          path: filePath,
           name
         },
         {
@@ -130,7 +137,7 @@ const readDeclarations$ = actions$.pipe(
   mergeMap((action: any) =>
     zip(
       ...action.declarations.map((declaration: string) =>
-        readJSONFile$(path.join(simpleMockDir, declaration)).pipe(
+        readJSONFile$(path.join(mocksDir, declaration)).pipe(
           map(({ name, text }) => ({
             type: 'DECLARATION_READ',
             module: action.name,
@@ -144,7 +151,18 @@ const readDeclarations$ = actions$.pipe(
   )
 );
 
-const effects = [readModule$, readDeclarations$];
+const readImports$ = actions$.pipe(
+  filter(({ type }: any) => type === 'READ_IMPORTS'),
+  map(action =>
+    action.imports.map((importedModule: string) => ({
+      type: 'READ_MODULE',
+      filePath: path.join(mocksDir, importedModule),
+      parent: action.name
+    }))
+  )
+);
+
+const effects = [readModule$, readDeclarations$, readImports$];
 
 merge(...effects)
   .pipe(
@@ -156,5 +174,6 @@ merge(...effects)
 
 dispatcher.next({
   type: 'READ_MODULE',
-  filePath: path.join(simpleMockDir, 'module-a.json')
+  filePath: path.join(mocksDir, 'module-a.json'),
+  parent: 'root'
 });
