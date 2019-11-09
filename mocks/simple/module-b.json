@@ -1,0 +1,5 @@
+{
+  "name": "ModuleB",
+  "declarations": ["component-c.json"],
+  "imports": []
+}

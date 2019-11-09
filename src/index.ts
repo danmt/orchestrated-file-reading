@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { defer, from, zip, Subject, merge } from 'rxjs';
-import { mergeMap, tap, scan, shareReplay, filter, map } from 'rxjs/operators';
+import { mergeMap, scan, shareReplay, filter, map } from 'rxjs/operators';
 
 const calleeDir = process.cwd();
 const mocksDir = path.join(calleeDir, 'mocks');
@@ -23,25 +23,68 @@ const readJSONFile$ = (filePath: string) =>
     map(fileContent => JSON.parse(fileContent.toString()))
   );
 
-const initialState = {};
+const initialState = {
+  modules: []
+};
 
 const reducer = (state: any, action: any) => {
   switch (action.type) {
+    case 'MODULE_READ':
+      return {
+        ...state,
+        modules: [
+          ...state.modules,
+          { name: action.name, declarations: [], imports: [] }
+        ]
+      };
     case 'READ_DECLARATIONS':
       return {
         ...state,
-        declarations: action.declarations.map((path: string) => ({
-          path
-        }))
+        modules: state.modules.map((currentModule: any) =>
+          currentModule.name === action.name
+            ? {
+                ...currentModule,
+                declarations: action.declarations.map((path: string) => ({
+                  path
+                }))
+              }
+            : currentModule
+        )
+      };
+    case 'READ_IMPORTS':
+      return {
+        ...state,
+        modules: state.modules.map((currentModule: any) =>
+          currentModule.name === action.name
+            ? {
+                ...currentModule,
+                imports: action.imports.map((path: string) => ({
+                  path
+                }))
+              }
+            : currentModule
+        )
       };
     case 'DECLARATION_READ':
       return {
         ...state,
-        declarations: state.declarations.map((declaration: any) => {
-          return declaration.path === action.path
-            ? { path: action.path, text: action.text }
-            : declaration;
-        })
+        modules: state.modules.map((currentModule: any) =>
+          currentModule.name === action.module
+            ? {
+                ...currentModule,
+                declarations: currentModule.declarations.map(
+                  (declaration: any) =>
+                    declaration.path === action.path
+                      ? {
+                          path: action.path,
+                          text: action.text,
+                          name: action.name
+                        }
+                      : declaration
+                )
+              }
+            : currentModule
+        )
       };
     default:
       return state;
@@ -55,29 +98,43 @@ const store$ = actions$.pipe(
   shareReplay(1)
 );
 
-store$.subscribe(state => console.log('state:', state));
+store$.subscribe(state => console.log(state));
 
 // Effect
 const readModule$ = actions$.pipe(
   filter(({ type }: any) => type === 'READ_MODULE'),
   mergeMap(({ filePath }: any) =>
     readJSONFile$(filePath).pipe(
-      map(({ declarations }) => ({
-        type: 'READ_DECLARATIONS',
-        declarations
-      }))
+      map(({ name, declarations, imports }) => [
+        {
+          type: 'MODULE_READ',
+          name
+        },
+        {
+          type: 'READ_DECLARATIONS',
+          name,
+          declarations
+        },
+        {
+          type: 'READ_IMPORTS',
+          name,
+          imports
+        }
+      ])
     )
   )
 );
 
 const readDeclarations$ = actions$.pipe(
   filter(({ type }: any) => type === 'READ_DECLARATIONS'),
-  mergeMap(({ declarations }: any) =>
+  mergeMap((action: any) =>
     zip(
-      ...declarations.map((declaration: string) =>
+      ...action.declarations.map((declaration: string) =>
         readJSONFile$(path.join(simpleMockDir, declaration)).pipe(
-          map(({ text }) => ({
+          map(({ name, text }) => ({
             type: 'DECLARATION_READ',
+            module: action.name,
+            name: name,
             path: declaration,
             text
           }))
@@ -99,5 +156,5 @@ merge(...effects)
 
 dispatcher.next({
   type: 'READ_MODULE',
-  filePath: path.join(simpleMockDir, 'level-1.json')
+  filePath: path.join(simpleMockDir, 'module-a.json')
 });
