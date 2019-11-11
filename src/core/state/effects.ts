@@ -1,7 +1,7 @@
 import { filter, mergeMap, map } from 'rxjs/operators';
 import { zip, Observable } from 'rxjs';
 import path from 'path';
-import { readJSONFile$ } from './utils';
+import { readJSONFile$ } from '../utils/read-file';
 import * as Actions from './actions';
 import { ActionTypes, ActionTypesUnion } from './actions';
 
@@ -10,6 +10,13 @@ const mocksDir = path.join(calleeDir, 'mocks', 'simple');
 
 export class Effects {
   constructor(public actions$: Observable<ActionTypesUnion>) {}
+
+  init$ = this.actions$.pipe(
+    filter(({ type }) => type === ActionTypes.Init),
+    map(() =>
+      new Actions.ReadModule(path.join(mocksDir, 'module-a.json'), 'root')
+    )
+  );
 
   readModule$ = this.actions$.pipe(
     filter(({ type }) => type === ActionTypes.ReadModule),

@@ -3,11 +3,16 @@ export interface Action {
 }
 
 export enum ActionTypes {
+  Init = 'Init',
   ReadModule = 'Read Module',
   ReadDeclarations = 'Read Declarations',
   ReadImports = 'Read Imports',
   ModuleRead = 'Module Read',
   DeclarationRead = 'Declaration Read'
+}
+
+export class Init implements Action {
+  type = ActionTypes.Init;
 }
 
 export class ReadModule implements Action {
@@ -41,6 +46,7 @@ export class DeclarationRead implements Action {
 }
 
 export type ActionTypesUnion =
+  | Init
   | ReadModule
   | ReadDeclarations
   | ReadImports
