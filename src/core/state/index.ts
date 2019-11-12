@@ -16,7 +16,8 @@ const effects = new Effects(actions$);
 merge(
   effects.readDeclarations$,
   effects.readImports$,
-  effects.readModule$,
+  effects.readModuleDecorator$,
+  effects.readModuleImports$,
   effects.init$
 )
   .pipe(
