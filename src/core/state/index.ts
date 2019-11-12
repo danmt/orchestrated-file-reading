@@ -26,7 +26,3 @@ merge(
     )
   )
   .subscribe(dispatcher);
-
-/* store$.subscribe(state => console.log(state));
-
-dispatcher.next(new Actions.Init()); */
