@@ -1,6 +1,6 @@
 import { AbstractPipe } from './pipe.interface';
 import { getProperty, getDecorator } from '../../core/utils/compiler';
-import * as ts from 'typescript';
+import ts from 'typescript';
 
 class ModulePipe implements AbstractPipe<any> {
   transform(node: ts.Node) {

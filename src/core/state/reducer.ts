@@ -7,11 +7,17 @@ export const initialState = {
 export const reducer = (state: any, action: any) => {
   switch (action.type) {
     case ActionTypes.ReadModule:
+      console.log(action);
       return {
         ...state,
         modules: [
           ...state.modules,
           {
+            status: {
+              decoratorLoaded: false,
+              importsLoaded: false,
+              fullyLoaded: false
+            },
             path: action.path,
             parent: action.parent
           }

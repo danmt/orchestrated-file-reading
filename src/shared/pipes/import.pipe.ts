@@ -1,22 +1,22 @@
 import { AbstractPipe } from './pipe.interface';
-import ts = require('typescript');
+import ts from 'typescript';
 
 export interface ImportSpecifier {
-  name: string;
+  name: string; // In case of an alias
   propertyName?: string;
   isNamespace?: boolean;
 }
 
 export interface ImportDeclaration {
   module: string;
-  imports: ImportSpecifier[];
+  assignments: ImportSpecifier[];
 }
 
 class ImportPipe implements AbstractPipe<ImportDeclaration> {
   transform({ moduleSpecifier, importClause }: any) {
     return {
       module: moduleSpecifier.getText().replace(/['"]+/g, ''),
-      imports: [
+      assignments: [
         ...(ts.isNamespaceImport(importClause.namedBindings)
           ? this.getNamespaceImport(importClause.namedBindings)
           : []),
