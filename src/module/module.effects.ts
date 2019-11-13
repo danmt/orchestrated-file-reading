@@ -97,6 +97,11 @@ export class Effects {
         (currentModule: any) => currentModule.name === action.moduleName
       )
     })),
+    filter(
+      ({ module: { decorator } }: any) =>
+        decorator.imports.filter((currentImport: any) => !currentImport.path)
+          .length === 0
+    ),
     map(({ action, module: currentModule }: any) =>
       currentModule.decorator.imports.map(
         (currentImport: any) =>
