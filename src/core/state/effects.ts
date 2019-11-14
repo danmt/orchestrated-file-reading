@@ -2,7 +2,7 @@ import { filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import path from 'path';
 import * as Actions from './actions';
-import * as ModuleActions from '../../module/module.actions';
+import * as ModuleActions from '../../module/state/module.actions';
 
 const BASE_DIR = path.join(process.cwd(), 'mocks');
 

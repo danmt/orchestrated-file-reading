@@ -1,4 +1,4 @@
-import { Action } from '../core/state/actions';
+import { Action } from '../../core/state/actions';
 
 export enum ActionTypes {
   ReadModule = '[Module] Read Module',

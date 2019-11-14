@@ -1,11 +1,11 @@
 import { from, Subject, merge } from 'rxjs';
 import { mergeMap, scan, shareReplay } from 'rxjs/operators';
 import { Effects as GlobalEffects } from './effects';
-import { Effects as ModuleEffects } from '../../module/module.effects';
+import { Effects as ModuleEffects } from '../../module/state/module.effects';
 import * as GlobalState from './reducer';
-import * as ModuleState from '../../module/module.reducer';
+import * as ModuleState from '../../module/state/module.reducer';
 import * as Actions from './actions';
-import * as ModuleActions from '../../module/module.actions';
+import * as ModuleActions from '../../module/state/module.actions';
 
 export const dispatcher = new Subject<
   Actions.ActionTypesUnion | ModuleActions.ActionTypesUnion

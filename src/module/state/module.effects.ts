@@ -1,13 +1,13 @@
-import * as Actions from '../core/state/actions';
+import * as Actions from '../../core/state/actions';
 import * as ModuleActions from './module.actions';
 import { Observable } from 'rxjs';
 import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
-import { readFileAndGetAST$ } from '../core/utils/read-file';
-import { getImports, getClasses } from '../core/utils/compiler';
-import importPipe from '../shared/pipes/import.pipe';
-import modulePipe from '../shared/pipes/module.pipe';
-import { store$ } from '../core/state';
-import classPipe from '../shared/pipes/class.pipe';
+import { readFileAndGetAST$ } from '../../core/utils/read-file';
+import { getImports, getClasses } from '../../core/utils/compiler';
+import importPipe from '../../shared/pipes/import.pipe';
+import modulePipe from '../../shared/pipes/module.pipe';
+import { store$ } from '../../core/state';
+import classPipe from '../../shared/pipes/class.pipe';
 
 export class Effects {
   constructor(
