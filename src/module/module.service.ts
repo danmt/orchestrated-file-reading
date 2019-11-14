@@ -1,11 +1,12 @@
 import path from 'path';
 import { arrayUpdate } from '../core/utils/common';
+import { ModuleDecorator, Module, ModuleStatus } from './module.class';
 
 const pipe = (...fns: any) => (arg: any) =>
   fns.reduce((prev: any, fn: any) => fn(prev), arg);
 
 class ModuleService {
-  private markDecoratorAsLoaded(status: any) {
+  private markDecoratorAsLoaded(status: ModuleStatus) {
     return {
       ...status,
       decoratorLoaded: true,
@@ -13,7 +14,7 @@ class ModuleService {
     };
   }
 
-  private markImportsAsLoaded(status: any) {
+  private markImportsAsLoaded(status: ModuleStatus) {
     return {
       ...status,
       importsLoaded: true,
@@ -21,40 +22,40 @@ class ModuleService {
     };
   }
 
-  saveModuleImports(modules: any, action: any) {
+  saveModuleImports(modules: Module[], action: any) {
     return arrayUpdate(
       modules,
-      item => item.path === action.path,
-      item => ({
+      (item: Module) => item.path === action.path,
+      (item: Module) => ({
         imports: action.imports,
         status: this.markImportsAsLoaded(item.status)
       })
     );
   }
 
-  saveModuleDecorator(modules: any, action: any) {
+  saveModuleDecorator(modules: Module[], action: any) {
     return arrayUpdate(
       modules,
-      item => item.path === action.path,
-      item => ({
+      (item: Module) => item.path === action.path,
+      (item: Module) => ({
         name: action.moduleDetails.name,
-        decorator: {
-          imports: action.moduleDetails.decorator.imports.map(
-            (name: string) => ({ name })
-          )
-        },
+        decorator: new ModuleDecorator(
+          action.moduleDetails.decorator.imports.map((name: string) => ({
+            name
+          }))
+        ),
         status: moduleService.markDecoratorAsLoaded(item.status)
       })
     );
   }
 
-  extendModuleDecoratorImports(modules: any, action: any) {
+  extendModuleDecoratorImports(modules: Module[], action: any) {
     return pipe(
-      (modules: any) =>
-        modules.find((curr: any) => curr.name === action.moduleName),
-      ({ decorator, path: modulePath }: any) =>
+      (modules: Module[]) =>
+        modules.find((curr: Module) => curr.name === action.moduleName),
+      ({ decorator, path: modulePath }: Module) =>
         arrayUpdate(
-          decorator.imports,
+          (decorator && decorator.imports) || [],
           item => item.name === action.importName,
           () => ({
             path: path.join(modulePath, '..', `${action.path}.ts`)
