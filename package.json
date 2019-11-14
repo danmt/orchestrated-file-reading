@@ -16,6 +16,9 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
+    "boxen": "^4.1.0",
+    "cfonts": "^2.4.5",
+    "chalk": "^3.0.0",
     "rxjs": "^6.5.3"
   }
 }

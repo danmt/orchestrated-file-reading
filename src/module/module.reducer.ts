@@ -3,6 +3,23 @@ import path from 'path';
 
 export const reducer = (state: any, action: any) => {
   switch (action.type) {
+    case ModuleActions.ActionTypes.ReadModule:
+      return {
+        ...state,
+        modules: [
+          ...state.modules,
+          {
+            status: {
+              decoratorLoaded: false,
+              importsLoaded: false,
+              fullyLoaded: false
+            },
+            path: action.path,
+            parent: action.parent
+          }
+        ]
+      };
+
     case ModuleActions.ActionTypes.SaveModuleDecorator:
       return {
         ...state,

@@ -1,13 +1,11 @@
 import { store$, dispatcher } from './core/state';
 import * as Actions from './core/state/actions';
+import { printState } from './core/utils/print-state';
+import { debounceTime } from 'rxjs/operators';
 
 const main = () => {
-  store$.subscribe(state => {
-    /* if (state.modules && state.modules.length === 3) {
-      console.log('\n first module', state.modules[0]);
-      console.log('\n second module', state.modules[1]);
-      console.log('\n third module', state.modules[2]);
-    } */
+  store$.pipe(debounceTime(200)).subscribe(state => {
+    printState(state);
   });
 
   dispatcher.next(new Actions.Init());

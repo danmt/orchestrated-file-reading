@@ -24,8 +24,6 @@ const globalEffects = new GlobalEffects(actions$);
 const moduleEffects = new ModuleEffects(actions$);
 
 merge(
-  globalEffects.readDeclarations$,
-  globalEffects.readImports$,
   globalEffects.init$,
   moduleEffects.readModuleDecorator$,
   moduleEffects.readModuleImports$,

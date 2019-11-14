@@ -1,5 +1,0 @@
-{
-  "name": "ModuleC",
-  "declarations": ["component-d.json"],
-  "imports": []
-}

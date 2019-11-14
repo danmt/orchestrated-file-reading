@@ -1,7 +1,7 @@
 import * as Actions from '../core/state/actions';
 import * as ModuleActions from './module.actions';
 import { Observable } from 'rxjs';
-import { filter, map, mergeMap, withLatestFrom, tap } from 'rxjs/operators';
+import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { readFileAndGetAST$ } from '../core/utils/read-file';
 import { getImports, getClasses } from '../core/utils/compiler';
 import importPipe from '../shared/pipes/import.pipe';
@@ -17,9 +17,9 @@ export class Effects {
   ) {}
 
   readModuleDecorator$ = this.actions$.pipe(
-    filter(({ type }) => type === Actions.ActionTypes.ReadModule),
-    map(action => action as Actions.ReadModule),
-    mergeMap(({ path: filePath }: Actions.ReadModule) =>
+    filter(({ type }) => type === ModuleActions.ActionTypes.ReadModule),
+    map(action => action as ModuleActions.ReadModule),
+    mergeMap(({ path: filePath }: ModuleActions.ReadModule) =>
       readFileAndGetAST$(filePath).pipe(
         map(sourceFile => ({
           ...getClasses(sourceFile)
@@ -38,9 +38,9 @@ export class Effects {
   );
 
   readModuleImports$ = this.actions$.pipe(
-    filter(({ type }) => type === Actions.ActionTypes.ReadModule),
-    map(action => action as Actions.ReadModule),
-    mergeMap(({ path: filePath }: Actions.ReadModule) =>
+    filter(({ type }) => type === ModuleActions.ActionTypes.ReadModule),
+    map(action => action as ModuleActions.ReadModule),
+    mergeMap(({ path: filePath }: ModuleActions.ReadModule) =>
       readFileAndGetAST$(filePath).pipe(
         map(sourceFile =>
           getImports(sourceFile).map((statement: any) =>
@@ -105,7 +105,7 @@ export class Effects {
     map(({ action, module: currentModule }: any) =>
       currentModule.decorator.imports.map(
         (currentImport: any) =>
-          new Actions.ReadModule(currentImport.path, action.moduleName)
+          new ModuleActions.ReadModule(currentImport.path, action.moduleName)
       )
     )
   );
