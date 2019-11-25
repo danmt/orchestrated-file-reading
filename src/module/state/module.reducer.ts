@@ -1,6 +1,6 @@
 import * as ModuleActions from './module.actions';
 import { moduleService } from '../module.service';
-import { Module } from '../module.class';
+import { Module } from '../models/module.model';
 
 export const reducer = (state: any, action: any) => {
   switch (action.type) {

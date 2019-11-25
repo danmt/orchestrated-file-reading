@@ -1,6 +1,8 @@
 import path from 'path';
 import { arrayUpdate } from '../core/utils/common';
-import { ModuleDecorator, Module, ModuleStatus } from './module.class';
+import { ModuleStatus } from './models/module-status.model';
+import { Module } from './models/module.model';
+import { ModuleDecorator } from './models/module-decorator.model';
 
 const pipe = (...fns: any) => (arg: any) =>
   fns.reduce((prev: any, fn: any) => fn(prev), arg);
